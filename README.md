@@ -1,5 +1,7 @@
 # 웹 달무티 (Web Dalmuti) - Fan Made 👑
 
+[![Play Game](https://img.shields.io/badge/Play-Dalmuti_Web-cc785c?style=for-the-badge&logo=firebase)](https://singwithgame.github.io/dalmuti/)
+
 인기 보드게임 **'달무티(The Great Dalmuti)'**를 모바일과 PC 웹 브라우저 환경에서 쾌적하게 즐길 수 있도록 구현한 **팬 메이드(Fan-made)** 웹 애플리케이션입니다.
 
 ## ⚠️ Disclaimer (저작권 안내)
@@ -22,6 +24,7 @@
 - **혁명 / 대혁명 시스템**: 조커(어릿광대) 2장을 통한 짜릿한 혁명(세금 징수 무효화) 및 노예의 대혁명(계급 완전 역전) 시스템을 완벽히 지원합니다.
 - **모바일 최적화 UX**: 한 손으로도 쾌적하게 패를 확인하고 카드를 낼 수 있도록 모바일 터치 친화적인 반응형 인터페이스를 구성했습니다.
 - **실수 방지 시스템**: 동시다발적 터치나 턴 꼬임을 방지하는 자가 치유(Self-healing) 로직 및 액션 컨펌 창을 적용했습니다.
+- **전적 및 랭크 변동 기록 (Game History)**: 매 라운드의 순위 변동 이력(예: 평민 ➔ 귀족)과 과거 게임 결과들을 기록하고 열람할 수 있는 명예의 전당 기능이 제공됩니다.
 
 ## 🛠️ 기술 스택
 
@@ -40,3 +43,18 @@
 > **"Das Leben ist ungerecht" (인생은 불공평하다)**
 > 
 > 부디 대달무티의 영광이 당신과 함께하기를! 👑
+
+## 💻 로컬 실행 방법 (Local Development)
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/singwithgame/dalmuti.git
+cd dalmuti
+
+# 2. 패키지 설치
+npm install
+
+# 3. 개발 서버 실행
+npm run dev
+```
+*(단, 로컬에서 실행하기 위해서는 본인의 Firebase 환경 변수 세팅이 필요합니다.)*
