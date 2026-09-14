@@ -619,11 +619,11 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
           </div>
           
           <div className="my-hand-container">
-            <div className="turn-indicator" style={{ marginBottom: '0.2rem', fontWeight: 'bold', color: isMyTurn ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
-              {isFinished ? `🎉 모든 카드를 털었습니다! 구경 중... (현재 👉 ${currentTurnPlayer} 턴)` : (isMyTurn ? '👉 내 턴입니다!' : `⏳ ${currentTurnPlayer}의 턴을 기다리는 중...`)}
+            <div className={`turn-indicator ${isMyTurn && !isFinished ? 'my-turn' : 'others-turn'}`}>
+              {isFinished ? `🎉 구경 중... (현재 👉 ${currentTurnPlayer} 턴)` : (isMyTurn ? '👉 내 턴입니다!' : `⏳ ${currentTurnPlayer}의 턴 대기 중...`)}
             </div>
             
-            <div className="validation-message" style={{ height: '20px', marginBottom: '0.2rem', color: isSelectionValid ? 'var(--color-primary)' : 'var(--color-destructive)', fontSize: '0.9rem', fontWeight: 'bold' }}>
+            <div className="validation-message" style={{ color: isSelectionValid ? 'var(--color-primary)' : 'var(--color-destructive)' }}>
               {isMyTurn && !isFinished ? validationMessage : ''}
             </div>
 
