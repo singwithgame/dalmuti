@@ -100,74 +100,65 @@
 }
 
 .dark {
-  /* === Background & Surface (brightness order: page < card < subtle) === */
-  --background: #0f172a;
-  --foreground: #ededed;
-  --card: #1e293b;
-  --card-foreground: #ededed;
-  --popover: #1e293b;
-  --popover-foreground: #ededed;
+  /* Claude Dark Mode (Warm Black) */
+  --background: #181715;
+  --foreground: #faf9f5;
+  --card: #252320;
+  --card-foreground: #faf9f5;
+  --popover: #252320;
+  --popover-foreground: #faf9f5;
 
-  /* === Text Hierarchy (dark) === */
-  --text-primary: #ededed;
-  --text-secondary: #a0a0a0;
-  --text-tertiary: #777777;
-  --text-disabled: #555555;
-  --icon-default: #777777;
+  /* Text Hierarchy */
+  --text-primary: #faf9f5;
+  --text-secondary: #a09d96;
+  --text-tertiary: #6c6a64;
+  --text-disabled: #3d3d3a;
+  --icon-default: #a09d96;
 
-  /* === Surface (dark) === */
-  --surface-page: #0f172a;
-  --surface-subtle: #1e293b;
-  --surface-muted: rgba(255, 255, 255, 0.06);
-  --brand-tint: rgba(255, 255, 255, 0.06);
-  --alert-badge: #ff5b4f;
+  /* Surfaces */
+  --surface-page: #181715;
+  --surface-subtle: #1f1e1b;
+  --surface-muted: #252320;
+  --brand-tint: rgba(204, 120, 92, 0.1);
+  --alert-badge: #c64545;
 
-  /* === Key Color & Status (brightened for dark mode) === */
-  --brand: #a78bfa;
-  --primary: #a78bfa;
+  /* Primary (Coral) */
+  --brand: #cc785c;
+  --primary: #cc785c;
   --primary-foreground: #ffffff;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ededed;
-  --muted: #1a1a1a;
-  --muted-foreground: #777777;
-  --accent: #1a1a1a;
-  --accent-foreground: #ededed;
-  --destructive: #ff6b61;
-  --destructive-foreground: #0a0a0a;
-  --success: #3b8ff0;
-  --success-foreground: #0a0a0a;
-  --warning: #fbbf24;
-  --warning-foreground: #0a0a0a;
-  --info: #3b8ff0;
-  --info-foreground: #0a0a0a;
+  
+  /* Secondary / Muted */
+  --secondary: #252320;
+  --secondary-foreground: #faf9f5;
+  --muted: #1f1e1b;
+  --muted-foreground: #a09d96;
+  --accent: #252320;
+  --accent-foreground: #faf9f5;
 
-  /* === Border & Input === */
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.08);
-  --input-background: #1a1a1a;
-  --switch-background: #404040;
-  --ring: hsla(212, 100%, 48%, 1);
+  /* Status */
+  --destructive: #c64545;
+  --destructive-foreground: #ffffff;
+  --success: #5db872;
+  --success-foreground: #ffffff;
+  --warning: #d4a017;
+  --warning-foreground: #ffffff;
+  --info: #5db8a6;
+  --info-foreground: #ffffff;
 
-  /* === Shadow → replaced by borders in dark mode === */
-  --shadow-card: none;
-  --shadow-button: none;
-  --shadow-card-hover: none;
+  /* Border & Input */
+  --border: #3d3d3a;
+  --input: #3d3d3a;
+  --input-background: #1f1e1b;
+  --switch-background: #3d3d3a;
+  --ring: #cc785c;
+
+  /* Shadows (Minimal in dark mode) */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.6);
 
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #ffffff;
-  --chart-2: #3b8ff0;
-  --chart-3: #f472b6;
-  --chart-4: #ff6b61;
-  --chart-5: #777777;
-  --sidebar: #141414;
-  --sidebar-foreground: #ededed;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #0a0a0a;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: #ededed;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: hsla(212, 100%, 48%, 1);
 }
 
 @theme inline {
