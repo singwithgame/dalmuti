@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
 :root {
+  color-scheme: light;
   
   
   
@@ -24,6 +25,7 @@
 }
 
 html {
+  color-scheme: light;
   font-size: 18px;
 }
 
