@@ -18,10 +18,16 @@ export default function HistoryModal({ onClose, password, setPassword }) {
       text += `🔥 ${record.revolutionBy}님이 조커 2장으로 ${record.revolution === 'greater' ? '대혁명' : '혁명'} 발동!\n`;
     } else if (record.taxes) {
       if (record.taxes.dalmutiCards) {
-        text += `👑 왕이 준 카드: ${record.taxes.dalmutiCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}\n`;
+        text += `👑 왕이 하사한 카드: ${record.taxes.dalmutiCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}\n`;
+      }
+      if (record.taxes.pBest) {
+        text += `⛏️ 대농노가 바친 카드: ${record.taxes.pBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}\n`;
       }
       if (record.taxes.nobleCards) {
-        text += `💎 귀족이 준 카드: ${record.taxes.nobleCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}\n`;
+        text += `💎 귀족이 하사한 카드: ${record.taxes.nobleCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}\n`;
+      }
+      if (record.taxes.lpBest) {
+        text += `🌾 소농노가 바친 카드: ${record.taxes.lpBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}\n`;
       }
     }
     
@@ -133,10 +139,16 @@ export default function HistoryModal({ onClose, password, setPassword }) {
                         ) : (
                           <div style={{ fontSize: '0.9rem' }}>
                             {record.taxes?.dalmutiCards && (
-                              <p>👑 왕이 준 카드: {record.taxes.dalmutiCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+                              <p>👑 왕이 하사한 카드: {record.taxes.dalmutiCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
+                            )}
+                            {record.taxes?.pBest && (
+                              <p>⛏️ 대농노가 바친 카드: {record.taxes.pBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
                             )}
                             {record.taxes?.nobleCards && (
-                              <p>💎 귀족이 준 카드: {record.taxes.nobleCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+                              <p>💎 귀족이 하사한 카드: {record.taxes.nobleCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
+                            )}
+                            {record.taxes?.lpBest && (
+                              <p>🌾 소농노가 바친 카드: {record.taxes.lpBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
                             )}
                           </div>
                         )}
