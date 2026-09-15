@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 import { db } from './firebase'; 
-import { ref, set, get, child, remove } from 'firebase/database';
+import { ref, set, get, child, remove, query, orderByChild, endAt } from 'firebase/database';
 import GameBoard from './components/GameBoard';
 import HistoryModal from './components/HistoryModal';
 
@@ -22,7 +22,7 @@ function App() {
     // Cleanup old rooms (older than 7 days)
     const cleanupOldRooms = async () => {
       try {
-        const snapshot = await get(ref(db, 'rooms'));
+        const snapshot = await get(query(ref(db, 'rooms'), orderByChild('createdAt'), endAt(now - ONE_WEEK)));
         if (snapshot.exists()) {
           const rooms = snapshot.val();
           const now = Date.now();
