@@ -293,6 +293,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       lastPlayedBy: nickname,
       passedPlayers: [],
       trickId: Date.now(),
+      trickId: Date.now(),
       [`players/${nickname}/hand`]: newHand,
       finishedPlayers: nextFinished
     };
@@ -339,7 +340,9 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       }
       nextUpdates.passedPlayers = [];
       nextUpdates.currentTurn = nextLead;
-      // centerCards와 lastPlayedBy를 유지하여 화면에 남도록 함
+      nextUpdates.centerCards = null;
+      nextUpdates.lastPlayedBy = null;
+      nextUpdates.trickId = Date.now();
     } else {
       nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, newPassed, finishedPlayers);
     }
