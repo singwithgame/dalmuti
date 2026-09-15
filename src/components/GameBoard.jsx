@@ -121,7 +121,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   const toggleReady = () => {
     update(ref(db, `rooms/${roomCode}/players/${nickname}`), {
-      isReady: !me.isReady
+      isReady: !me?.isReady
     });
   };
 
@@ -444,8 +444,8 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
           </div>
           
           <div className="waiting-actions">
-            <button className={`btn ${me.isReady ? 'btn-secondary' : ''}`} onClick={toggleReady}>
-              {me.isReady ? '준비 취소' : '준비 완료'}
+            <button className={`btn ${me?.isReady ? 'btn-secondary' : ''}`} onClick={toggleReady}>
+              {me?.isReady ? '준비 취소' : '준비 완료'}
             </button>
             {isHost && (
               <button 
