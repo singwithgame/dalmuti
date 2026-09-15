@@ -141,11 +141,9 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     return groups;
   }, [unselectedIndices, myHand]);
 
-  if (!roomData) return <div className="lobby-container">Loading...</div>;
-
-  const isHost = me?.isHost;
   const [autoPassTrick, setAutoPassTrick] = useState(false);
   const currentTurnPlayer = roomData?.currentTurn;
+  const isMyTurn = currentTurnPlayer === nickname;
   
   // Auto pass trick effect
   useEffect(() => {
@@ -160,7 +158,10 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     }
   }, [isMyTurn, autoPassTrick, finishedPlayers, nickname]);
 
-  
+  if (!roomData) return <div className="lobby-container">Loading...</div>;
+
+  const isHost = me?.isHost;
+
   const handleLeaveRoom = async () => {
     if (window.confirm("정말 방을 나가시겠습니까? 게임 진행 중일 경우 다른 플레이어들에게 방해가 될 수 있습니다.")) {
       await remove(ref(db, `rooms/${roomCode}/players/${nickname}`));
