@@ -828,6 +828,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                        {changeText}
                      </span>
                    )}
+
                  </li>
                );
              })}

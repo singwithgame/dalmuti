@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 import { db } from './firebase'; 
-import { ref, set, get, child } from 'firebase/database';
+import { ref, set, get, child, remove } from 'firebase/database';
 import GameBoard from './components/GameBoard';
 import HistoryModal from './components/HistoryModal';
 
@@ -16,6 +16,32 @@ function App() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [modalPassword, setModalPassword] = useState('');
+
+
+  useEffect(() => {
+    // Cleanup old rooms (older than 7 days)
+    const cleanupOldRooms = async () => {
+      try {
+        const snapshot = await get(ref(db, 'rooms'));
+        if (snapshot.exists()) {
+          const rooms = snapshot.val();
+          const now = Date.now();
+          const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+          
+          Object.keys(rooms).forEach(roomId => {
+            const room = rooms[roomId];
+            const createdAt = room.createdAt;
+            if (createdAt && now - createdAt > ONE_WEEK) {
+              remove(ref(db, `rooms/${roomId}`));
+            }
+          });
+        }
+      } catch(e) {
+        console.error('Failed to cleanup old rooms', e);
+      }
+    };
+    cleanupOldRooms();
+  }, []);
 
   useEffect(() => {
     const checkReconnect = async () => {
@@ -91,6 +117,7 @@ function App() {
       const roomRef = ref(db, `rooms/${code}`);
       await set(roomRef, {
         status: 'waiting',
+        createdAt: Date.now(),
         players: {
           [nickname]: { isHost: true, isReady: true }
         }
