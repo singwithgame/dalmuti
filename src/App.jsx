@@ -26,10 +26,107 @@ function App() {
         try {
           const snapshot = await get(child(ref(db), `rooms/${savedRoom}`));
           if (snapshot.exists()) {
+            const roomData = snapshot.val();
+            if (roomData.players && roomData.players[savedNickname]) {
+              setNickname(savedNickname);
+              setRoomCode(savedRoom);
+              setIsJoined(true);
+            } else {
+              localStorage.removeItem('dalmuti_nickname');
+              localStorage.removeItem('dalmuti_roomCode');
+            }
+          } else {
+            localStorage.removeItem('dalmuti_nickname');
+            localStorage.removeItem('dalmuti_roomCode');
+          }
+        } catch (err) {
+          console.error("Reconnect failed", err);
+        }
+      }
+      setIsChecking(false);
+    };
+    
+    checkReconnect();
+  }, []);
+
+  const saveToLocal = (name, code) => {
+    localStorage.setItem('dalmuti_nickname', name);
+    localStorage.setItem('dalmuti_roomCode', code);
+  };
+
+  const handleLeave = () => {
+    localStorage.removeItem('dalmuti_nickname');
+    localStorage.removeItem('dalmuti_roomCode');
+    setIsJoined(false);
+    setNickname('');
+    setRoomCode('');
+  };
+
+  const generateRoomCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  const handleCreateRoomClick = () => {
+    if (!nickname) {
+      setError('닉네임을 입력해주세요.');
+      return;
+    }
+    setError('');
+    setModalPassword('');
+    setShowCreateModal(true);
+  };
+
+  const confirmCreateRoom = async () => {
+    const requiredPassword = import.meta.env.VITE_ROOM_PASSWORD || 'dalmuti';
+    
+    if (modalPassword !== requiredPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      setShowCreateModal(false);
+      return;
+    }
+
+    setShowCreateModal(false);
+    const code = generateRoomCode();
+    try {
+      const roomRef = ref(db, `rooms/${code}`);
+      await set(roomRef, {
+        status: 'waiting',
+        players: {
+          [nickname]: { isHost: true, isReady: true }
+        }
+      });
+      setRoomCode(code);
+      saveToLocal(nickname, code);
+      setIsJoined(true);
+      setError('');
+    } catch (err) {
+      setError('방 생성에 실패했습니다. Firebase 설정을 확인해주세요.');
+      console.error(err);
+    }
+  };
+
+  const handleHistoryClick = () => {
+    setError('');
+    setModalPassword('');
+    setShowHistoryModal(true);
+  };
+
+  const joinRoom = async () => {
+    if (!nickname || !roomCode) {
+      setError('닉네임과 입장 코드를 모두 입력해주세요.');
+      return;
+    }
+    
+    try {
+      const dbRef = ref(db);
+      const snapshot = await get(child(dbRef, `rooms/${roomCode}`));
+      
+      if (snapshot.exists()) {
         const roomData = snapshot.val();
+        
+        // 기존 플레이어의 재접속 시도인지 확인
         const isExistingPlayer = roomData.players && roomData.players[nickname];
         
-        // 인원 초과 체크 로직 추가
         const playerCount = roomData.players ? Object.keys(roomData.players).length : 0;
         if (!isExistingPlayer && playerCount >= 8) {
           setError('방 인원이 꽉 찼습니다 (최대 8명).');

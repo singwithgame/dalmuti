@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import Card from './Card';
 import { db } from '../firebase';
-import { ref, onValue, update, push } from 'firebase/database';
+import { ref, onValue, update, push, remove } from 'firebase/database';
 import { generateDeck, shuffleDeck, distributeCards, validatePlay, getNextPlayer, CARD_NAMES } from '../gameLogic';
 
 export default function GameBoard({ roomCode, nickname, onLeave }) {
   const [roomData, setRoomData] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
-  
-  
+
+
   useEffect(() => {
     const roomRef = ref(db, `rooms/${roomCode}`);
     const unsubscribe = onValue(roomRef, (snapshot) => {
@@ -21,7 +21,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     return () => unsubscribe();
   }, [roomCode, onLeave]);
 
-  
   // 세금 교환 및 혁명 처리 (방장만 계산하여 업데이트)
   useEffect(() => {
     if (roomData?.status === 'taxing' && roomData.players && roomData.players[nickname]?.isHost) {
@@ -53,8 +52,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
         if (!allRevolutionPassed) {
            return; // 혁명 가능자가 아직 결정을 안 함
         }
-        
-        
 
         const dalmutiName = ranks[0];
         const nobleName = ranks[1];
@@ -116,7 +113,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   
   const handleLeaveRoom = async () => {
     if (window.confirm("정말 방을 나가시겠습니까? 게임 진행 중일 경우 다른 플레이어들에게 방해가 될 수 있습니다.")) {
-      const { ref, remove } = await import('firebase/database');
       await remove(ref(db, `rooms/${roomCode}/players/${nickname}`));
       onLeave();
     }
@@ -405,11 +401,11 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   // 카드 분리 렌더링을 위한 인덱스 계산
   const stagedIndices = selectedCards;
-  const unselectedIndices = myHand.map((_, i) => i).filter(i => !selectedCards.includes(i));
+  const unselectedIndices = useMemo(() => myHand.map((_, i) => i).filter(i => !selectedCards.includes(i)), [myHand, selectedCards]);
   
   const groupedUnselected = useMemo(() => {
     const groups = [];
-    unselectedIndices.forEach((idx) => {
+    unselectedIndices.forEach(idx => {
       const num = myHand[idx];
       const existing = groups.find(g => g.num === num);
       if (existing) {
@@ -420,8 +416,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     });
     return groups;
   }, [unselectedIndices, myHand]);
-    }
-  });
 
   return (
     <div className="game-board">
@@ -520,7 +514,61 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
               )}
               {hasRevolution && roomData.taxState?.revolutionPassedBy?.includes(nickname) && (
                 <p style={{ marginBottom: '2rem', color: 'var(--color-text-secondary)' }}>혁명을 포기했습니다. 게임 시작을 대기 중입니다...</p>
-              )}}
+              )}
+
+              {isDalmuti ? (
+                roomData.taxState?.dalmutiCards ? (
+                  <p>농노에게 하사할 카드를 전달했습니다. 다른 플레이어를 기다리는 중...</p>
+                ) : (
+                  <div>
+                    <p style={{ marginBottom: '1rem' }}>👑 대달무티이십니다. 농노에게 하사할 아무 카드나 2장 선택해주세요.</p>
+                    <button className="btn" disabled={selectedCards.length !== 2} onClick={giveTax}>하사하기</button>
+                  </div>
+                )
+              ) : isNoble ? (
+                roomData.taxState?.nobleCards ? (
+                  <p>소농노에게 하사할 카드를 전달했습니다. 다른 플레이어를 기다리는 중...</p>
+                ) : (
+                  <div>
+                    <p style={{ marginBottom: '1rem' }}>💎 소달무티이십니다. 소농노에게 하사할 아무 카드나 1장 선택해주세요.</p>
+                    <button className="btn" disabled={selectedCards.length !== 1} onClick={giveTax}>하사하기</button>
+                  </div>
+                )
+              ) : (
+                <div style={{ marginBottom: '2rem' }}>
+                  <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)' }}>👑 세금 교환을 진행 중입니다... (누군가 혁명을 고민하고 있을 수 있습니다)</p>
+                  {isPeasant && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 대농노입니다. 가장 좋은 카드 2장이 자동으로 왕에게 바쳐집니다.</p>}
+                  {myRankIndex === roomData.ranks?.length - 2 && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 소농노입니다. 가장 좋은 카드 1장이 자동으로 귀족에게 바쳐집니다.</p>}
+                </div>
+              )}
+              
+              <div className="hand-cards-container">
+                <div className="hand-cards tax-hand-cards">
+                  {groupedUnselected.map((group) => {
+                    const { num, indices } = group;
+                    const idx = indices[0];
+                    const count = indices.length;
+                    const maxAllowed = isDalmuti ? 2 : (isNoble ? 1 : 0);
+                    const isDimmed = selectedCards.length >= maxAllowed;
+                    return (
+                      <div 
+                        key={`tax-hand-${num}`} 
+                        className={`hand-card-wrapper ${isDimmed ? 'dimmed' : ''}`}
+                      >
+                        <Card 
+                          number={num} 
+                          name={CARD_NAMES[num]} 
+                          isSelected={false}
+                          onClick={() => {
+                            if (isDimmed) return;
+                            handleCardClick(idx);
+                          }}
+                          isPlayable={(!roomData.taxState?.dalmutiCards && isDalmuti) || (!roomData.taxState?.nobleCards && isNoble)}
+                          count={count}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
