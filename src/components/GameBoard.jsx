@@ -270,11 +270,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       return;
     }
     
-    // 최고의 패일 경우 묻지 않고 바로 패스 처리
-    const isUnbeatable = validation.rank === validation.count;
-    if (!isUnbeatable) {
-      if (!window.confirm('정말 이 카드를 내시겠습니까?')) return;
-    }
+    if (!window.confirm('정말 이 카드를 내시겠습니까?')) return;
     
     const newHand = myHand.filter((_, idx) => !selectedCards.includes(idx));
     
@@ -313,18 +309,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
          push(historyRef, log);
       }
     } else {
-      if (isUnbeatable) {
-        // 절대 깰 수 없는 패인 경우(ex: 1이 1장, 2가 2장 등) 다른 모든 플레이어를 패스 처리하고 즉시 턴을 돌려받음
-        nextUpdates.passedPlayers = activePlayers.filter(p => p !== nickname);
-        // 다음 턴은 바로 자신(새로운 트릭) - 만약 자신이 이 카드로 끝났다면 다음 사람
-        let nextLead = nickname;
-        if (nextFinished.includes(nickname)) {
-           nextLead = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
-        }
-        nextUpdates.currentTurn = nextLead;
-      } else {
-        nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
-      }
+      nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
     }
     
     update(ref(db, `rooms/${roomCode}`), nextUpdates);
