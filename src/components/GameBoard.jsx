@@ -292,8 +292,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       },
       lastPlayedBy: nickname,
       passedPlayers: [],
-      trickId: Date.now(),
-      trickId: Date.now(),
       [`players/${nickname}/hand`]: newHand,
       finishedPlayers: nextFinished
     };
