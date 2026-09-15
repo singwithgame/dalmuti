@@ -171,7 +171,7 @@ function App() {
       
       <div className="lobby-card">
         {error && (
-          <div style={{ backgroundColor: 'var(--color-destructive-tint)', color: 'var(--color-destructive)', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+          <div style={{ backgroundColor: 'var(--destructive-tint)', color: 'var(--destructive)', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
             {error}
           </div>
         )}
@@ -208,7 +208,7 @@ function App() {
         <button className="btn btn-secondary" onClick={handleCreateRoomClick}>새로운 방 만들기</button>
 
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-          <button className="btn btn-secondary" style={{ opacity: 0.6, backgroundColor: 'transparent', border: '1px solid var(--color-border)', fontSize: '0.8rem', padding: '0.5rem' }} onClick={handleHistoryClick}>
+          <button className="btn btn-secondary" style={{ opacity: 0.6, backgroundColor: 'transparent', border: '1px solid var(--border)', fontSize: '0.8rem', padding: '0.5rem' }} onClick={handleHistoryClick}>
             📜 전체 과거 기록 조회
           </button>
         </div>
@@ -217,7 +217,7 @@ function App() {
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--color-foreground)' }}>방 생성 비밀번호</h3>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--foreground)' }}>방 생성 비밀번호</h3>
             <input
               type="password"
               className="input"

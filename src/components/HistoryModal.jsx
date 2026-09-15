@@ -44,12 +44,12 @@ export default function HistoryModal({ onClose, password, setPassword }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%', maxHeight: '80vh', overflowY: 'auto' }}>
-        <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)', textAlign: 'center' }}>📜 전체 게임 기록</h2>
+        <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)', textAlign: 'center' }}>📜 전체 게임 기록</h2>
         
         {!isAuthenticated ? (
           <div style={{ textAlign: 'center' }}>
-            <p style={{ marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>기록을 열람하려면 관리자 비밀번호가 필요합니다.</p>
-            {error && <p style={{ color: 'var(--color-destructive)', marginBottom: '1rem' }}>{error}</p>}
+            <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>기록을 열람하려면 관리자 비밀번호가 필요합니다.</p>
+            {error && <p style={{ color: 'var(--destructive)', marginBottom: '1rem' }}>{error}</p>}
             <input
               type="password"
               className="input"
@@ -67,18 +67,18 @@ export default function HistoryModal({ onClose, password, setPassword }) {
         ) : (
           <div>
             {history.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>아직 저장된 게임 기록이 없습니다.</p>
+              <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>아직 저장된 게임 기록이 없습니다.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {history.map((record, i) => (
-                  <div key={i} style={{ background: 'var(--color-card)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                  <div key={i} style={{ background: 'var(--card)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 'bold' }}>방 코드: {record.roomCode}</span>
-                      <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>{new Date(record.timestamp).toLocaleString()}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{new Date(record.timestamp).toLocaleString()}</span>
                     </div>
 
                     <div style={{ marginBottom: '1rem' }}>
-                      <h4 style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>시작 계급</h4>
+                      <h4 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>시작 계급</h4>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {record.initialRanks.map((name, idx) => (
                           <span key={name} style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
@@ -90,9 +90,9 @@ export default function HistoryModal({ onClose, password, setPassword }) {
 
                     {(record.taxes || record.revolution) && (
                       <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px' }}>
-                        <h4 style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>세금 납부 및 혁명</h4>
+                        <h4 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>세금 납부 및 혁명</h4>
                         {record.revolution ? (
-                          <p style={{ color: 'var(--color-destructive)', fontWeight: 'bold' }}>
+                          <p style={{ color: 'var(--destructive)', fontWeight: 'bold' }}>
                             🔥 {record.revolutionBy}님이 조커 2장으로 {record.revolution === 'greater' ? '대혁명' : '혁명'}을 일으켰습니다! (세금 무효화)
                           </p>
                         ) : (
@@ -109,7 +109,7 @@ export default function HistoryModal({ onClose, password, setPassword }) {
                     )}
 
                     <div>
-                      <h4 style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>최종 결과</h4>
+                      <h4 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>최종 결과</h4>
                       <ol style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.95rem' }}>
                         {record.finalRanks.map((name, idx) => (
                           <li key={name} style={{ margin: '4px 0' }}>

@@ -391,7 +391,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     const oppHandCount = roomData.players[oppName]?.hand?.length || 0;
     
     return (
-      <div key={oppName} className={`opponent-avatar ${isMe ? 'is-me' : ''} ${isOppTurn && !isOppFinished ? 'current-turn' : ''} ${isOppFinished ? 'finished' : ''}`} style={isMe ? { borderColor: 'var(--color-primary)', borderWidth: '2px' } : {}}>
+      <div key={oppName} className={`opponent-avatar ${isMe ? 'is-me' : ''} ${isOppTurn && !isOppFinished ? 'current-turn' : ''} ${isOppFinished ? 'finished' : ''}`} style={isMe ? { borderColor: 'var(--primary)', borderWidth: '2px' } : {}}>
         <div className="opponent-rank">{getRankEmoji(oppName)}</div>
         <div className="opponent-name">{isMe ? `[나] ${oppName}` : oppName}</div>
         <div className="opponent-cards">{isOppFinished ? '🎉 통과' : `🃏 ${oppHandCount}장`}</div>
@@ -431,7 +431,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       {roomData.status === 'waiting' && (
         <div className="waiting-room">
           <h3 style={{ marginBottom: '1rem', textAlign: 'center' }}>대기실 (현재 {playerCount}명)</h3>
-          <p style={{textAlign: 'center', color: 'var(--color-text-secondary)', marginBottom: '1rem'}}>
+          <p style={{textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '1rem'}}>
             달무티는 4~8인이 즐기기에 가장 적합합니다. (최소 4인 필요)
           </p>
           <div className="player-list">
@@ -465,10 +465,10 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
         <div className="waiting-room text-center">
           {roomData.taxState?.revolution ? (
             <div style={{ padding: '3rem 0', animation: 'fadeIn 0.5s ease' }}>
-              <h1 style={{ fontSize: '3rem', color: 'var(--color-destructive)', marginBottom: '1rem' }}>
+              <h1 style={{ fontSize: '3rem', color: 'var(--destructive)', marginBottom: '1rem' }}>
                 {roomData.taxState.revolution === 'greater' ? '대혁명 발동!!!' : '혁명 발동!'}
               </h1>
-              <h2 style={{ color: 'var(--color-primary)' }}>
+              <h2 style={{ color: 'var(--primary)' }}>
                 {roomData.taxState.revolutionBy}님이 조커 2장으로 혁명을 일으켰습니다!
               </h2>
               <p style={{ marginTop: '1rem', fontSize: '1.2rem' }}>
@@ -494,17 +494,17 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                 </button>
               )}
               {!isHost && (
-                <p style={{ marginTop: '2rem', color: 'var(--color-text-tertiary)' }}>방장이 게임을 시작할 때까지 기다려주세요...</p>
+                <p style={{ marginTop: '2rem', color: 'var(--text-tertiary)' }}>방장이 게임을 시작할 때까지 기다려주세요...</p>
               )}
 
             </div>
           ) : (
             <>
-              <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)' }}>⚖️ 세금 징수 ⚖️</h2>
+              <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>⚖️ 세금 징수 ⚖️</h2>
               
               {hasRevolution && !roomData.taxState?.revolutionPassedBy?.includes(nickname) && (
                 <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                  <button className="btn" style={{ backgroundColor: 'var(--color-destructive)', borderColor: 'var(--color-destructive)' }} onClick={declareRevolution}>
+                  <button className="btn" style={{ backgroundColor: 'var(--destructive)', borderColor: 'var(--destructive)' }} onClick={declareRevolution}>
                     🔥 조커 2장으로 혁명 일으키기 🔥
                   </button>
                   <button className="btn btn-secondary" onClick={passRevolution}>
@@ -513,7 +513,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                 </div>
               )}
               {hasRevolution && roomData.taxState?.revolutionPassedBy?.includes(nickname) && (
-                <p style={{ marginBottom: '2rem', color: 'var(--color-text-secondary)' }}>혁명을 포기했습니다. 게임 시작을 대기 중입니다...</p>
+                <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)' }}>혁명을 포기했습니다. 게임 시작을 대기 중입니다...</p>
               )}
 
               {isDalmuti ? (
@@ -536,9 +536,9 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                 )
               ) : (
                 <div style={{ marginBottom: '2rem' }}>
-                  <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)' }}>👑 세금 교환을 진행 중입니다... (누군가 혁명을 고민하고 있을 수 있습니다)</p>
-                  {isPeasant && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 대농노입니다. 가장 좋은 카드 2장이 자동으로 왕에게 바쳐집니다.</p>}
-                  {myRankIndex === roomData.ranks?.length - 2 && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 소농노입니다. 가장 좋은 카드 1장이 자동으로 귀족에게 바쳐집니다.</p>}
+                  <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>👑 세금 교환을 진행 중입니다... (누군가 혁명을 고민하고 있을 수 있습니다)</p>
+                  {isPeasant && <p style={{ marginTop: '1rem', color: 'var(--destructive)' }}>당신은 대농노입니다. 가장 좋은 카드 2장이 자동으로 왕에게 바쳐집니다.</p>}
+                  {myRankIndex === roomData.ranks?.length - 2 && <p style={{ marginTop: '1rem', color: 'var(--destructive)' }}>당신은 소농노입니다. 가장 좋은 카드 1장이 자동으로 귀족에게 바쳐집니다.</p>}
                 </div>
               )}
               
@@ -573,8 +573,8 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
               </div>
 
               {selectedCards.length > 0 && (
-                <div style={{ marginTop: '2rem', padding: '1rem', border: '2px dashed var(--color-border)', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
-                  <p style={{ marginBottom: '1rem', color: 'var(--color-text-secondary)' }}>선택된 카드 (클릭하여 취소)</p>
+                <div style={{ marginTop: '2rem', padding: '1rem', border: '2px dashed var(--border)', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
+                  <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>선택된 카드 (클릭하여 취소)</p>
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     {selectedCards.map((idx, i) => {
                       const num = myHand[idx];
@@ -613,10 +613,10 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                     <Card key={idx} number={num} name={CARD_NAMES[num]} isPlayable={false} />
                   ))
                 ) : (
-                  <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center' }}>테이블이 비어있습니다.</p>
+                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>테이블이 비어있습니다.</p>
                 )}
               </div>
-              {centerCards && <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '0' }}>마지막으로 낸 사람: {roomData.lastPlayedBy}</p>}
+              {centerCards && <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0' }}>마지막으로 낸 사람: {roomData.lastPlayedBy}</p>}
             </div>
           </div>
           
@@ -625,14 +625,14 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
               {isFinished ? `🎉 구경 중... (현재 👉 ${currentTurnPlayer} 턴)` : (isMyTurn ? '👉 내 턴입니다!' : `⏳ ${currentTurnPlayer}의 턴 대기 중...`)}
             </div>
             
-            <div className="validation-message" style={{ color: isSelectionValid ? 'var(--color-primary)' : 'var(--color-destructive)' }}>
+            <div className="validation-message" style={{ color: isSelectionValid ? 'var(--primary)' : 'var(--destructive)' }}>
               {isMyTurn && !isFinished ? validationMessage : ''}
             </div>
 
             {!isFinished && (
-              <div className="staging-area" style={{ minHeight: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0.5rem', border: '2px dashed var(--color-border)', borderRadius: '12px', padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
+              <div className="staging-area" style={{ minHeight: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0.5rem', border: '2px dashed var(--border)', borderRadius: '12px', padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
                 {stagedIndices.length === 0 ? (
-                  <p style={{ color: 'var(--color-text-secondary)' }}>제출할 카드를 터치해서 올리세요</p>
+                  <p style={{ color: 'var(--text-secondary)' }}>제출할 카드를 터치해서 올리세요</p>
                 ) : (
                   <div style={{ display: 'flex' }}>
                     {stagedIndices.map((idx, i) => {
@@ -706,7 +706,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
       {roomData.status === 'round_over' && (
         <div className="waiting-room text-center">
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)' }}>🎉 라운드 종료! 🎉</h2>
+          <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>🎉 라운드 종료! 🎉</h2>
           <h3>최종 계급도</h3>
           <ol style={{ marginTop: '1rem', marginBottom: '2rem', textAlign: 'left', display: 'inline-block' }}>
              {roomData.ranks && roomData.ranks.map((name, idx) => {
@@ -745,12 +745,12 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                      padding: '0.5rem 1rem',
                      borderRadius: '8px',
                      background: isMe ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-                     border: isMe ? '1px solid var(--color-primary)' : '1px solid transparent'
+                     border: isMe ? '1px solid var(--primary)' : '1px solid transparent'
                    }}
                  >
                    {title} - <strong>{name}</strong> {isMe && '(나)'}
                    {changeText && (
-                     <span style={{ fontSize: '0.9rem', color: isMe ? 'var(--color-foreground)' : 'var(--color-text-secondary)', marginLeft: '0.5rem' }}>
+                     <span style={{ fontSize: '0.9rem', color: isMe ? 'var(--foreground)' : 'var(--text-secondary)', marginLeft: '0.5rem' }}>
                        {changeText}
                      </span>
                    )}
@@ -763,7 +763,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
               다음 라운드 시작하기 (세금 납부 및 카드 섞기)
             </button>
           ) : (
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '1.2rem', marginTop: '1rem' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginTop: '1rem' }}>
               ⏳ 방장이 다음 라운드를 시작할 때까지 대기중...
             </div>
           )}

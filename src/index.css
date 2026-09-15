@@ -30,8 +30,8 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-family);
   font-size: 1.1rem;
   -webkit-font-smoothing: antialiased;
@@ -62,7 +62,7 @@ h1, h2, h3 {
   font-family: var(--font-title);
   font-style: italic;
   font-weight: 300;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   letter-spacing: 0.2em;
   opacity: 0.8;
   text-transform: uppercase;
@@ -72,7 +72,7 @@ h1, h2, h3 {
 
 /* Buttons */
 .btn {
-  background-color: var(--color-primary);
+  background-color: var(--primary);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 0.75rem 1.5rem;
@@ -89,7 +89,7 @@ h1, h2, h3 {
 }
 
 .btn:hover {
-  background-color: color-mix(in srgb, var(--color-primary) 85%, black);
+  background-color: color-mix(in srgb, var(--primary) 85%, black);
   transform: translateY(-2px);
   box-shadow: var(--shadow-card-hover);
 }
@@ -99,22 +99,22 @@ h1, h2, h3 {
 }
 
 .btn-secondary {
-  background-color: var(--color-surface-subtle);
+  background-color: var(--surface-subtle);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-foreground);
+  color: var(--foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-surface-muted);
+  background-color: var(--surface-muted);
   box-shadow: var(--shadow-button);
 }
 
 /* Inputs */
 .input {
-  background-color: var(--color-input-background);
-  border: 1px solid var(--color-border);
-  color: var(--color-foreground);
+  background-color: var(--input-background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   width: 100%;
@@ -125,8 +125,8 @@ h1, h2, h3 {
 
 .input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .table-container {
@@ -162,8 +162,8 @@ h1, h2, h3 {
 
 
 .opponent-avatar {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: var(--card);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.5rem;
   text-align: center;
@@ -178,7 +178,7 @@ h1, h2, h3 {
 }
 
 .opponent-avatar.current-turn {
-  border-color: var(--color-primary);
+  border-color: var(--primary);
   box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
 }
 
@@ -196,7 +196,7 @@ h1, h2, h3 {
   font-size: 1rem;
   font-weight: 500;
   margin-bottom: 0.2rem;
-  color: var(--color-foreground);
+  color: var(--foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -205,7 +205,7 @@ h1, h2, h3 {
 
 .opponent-cards {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 /* Lobby Layout */
@@ -221,8 +221,8 @@ h1, h2, h3 {
 }
 
 .lobby-card {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: var(--card);
+  border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 2.5rem;
   width: 100%;
@@ -249,7 +249,7 @@ h1, h2, h3 {
 
 .form-group label {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .divider {
@@ -257,7 +257,7 @@ h1, h2, h3 {
   align-items: center;
   text-align: center;
   margin: 1.5rem 0;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
@@ -265,7 +265,7 @@ h1, h2, h3 {
 .divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
 }
 
 .divider:not(:empty)::before {
@@ -296,12 +296,12 @@ h1, h2, h3 {
 .room-code-display {
   font-family: var(--font-title);
   font-size: 1.25rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .waiting-room {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: var(--card);
+  border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 2.5rem;
   width: 100%;
@@ -324,12 +324,12 @@ h1, h2, h3 {
   padding: 1rem 1.5rem;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   transition: all 0.2s;
 }
 
 .player-item.ready {
-  border-color: var(--color-primary);
+  border-color: var(--primary);
   background-color: rgba(139, 92, 246, 0.1);
 }
 
@@ -339,11 +339,11 @@ h1, h2, h3 {
 
 .player-status {
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .player-item.ready .player-status {
-  color: var(--color-primary);
+  color: var(--primary);
 }
 
 .waiting-actions {
@@ -385,7 +385,7 @@ h1, h2, h3 {
   width: 80px;
   height: 120px;
   border-radius: 8px;
-  background-color: var(--color-card);
+  background-color: var(--card);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
@@ -405,8 +405,8 @@ h1, h2, h3 {
 
 .playing-card.selected {
   transform: translateY(-20px) scale(1.05);
-  border: 2px solid var(--color-primary);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 30px -4px rgba(0, 0, 0, 0.8), 0 0 15px color-mix(in srgb, var(--color-primary) 60%, transparent);
+  border: 2px solid var(--primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 30px -4px rgba(0, 0, 0, 0.8), 0 0 15px color-mix(in srgb, var(--primary) 60%, transparent);
   z-index: 10;
 }
 
@@ -429,7 +429,7 @@ h1, h2, h3 {
   position: absolute;
   top: -8px;
   right: -8px;
-  background-color: var(--color-destructive);
+  background-color: var(--destructive);
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -440,7 +440,7 @@ h1, h2, h3 {
   font-size: 0.8rem;
   font-weight: bold;
   box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  border: 2px solid var(--color-surface-subtle);
+  border: 2px solid var(--surface-subtle);
   z-index: 5;
 }
 
@@ -486,7 +486,7 @@ h1, h2, h3 {
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
-  border-color: var(--color-border) !important;
+  border-color: var(--border) !important;
 }
 
 /* Modal Styles */
@@ -505,8 +505,8 @@ h1, h2, h3 {
 }
 
 .modal-content {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: var(--card);
+  border: 1px solid var(--border);
   padding: 2rem;
   border-radius: 12px;
   width: 90%;
@@ -534,7 +534,7 @@ h1, h2, h3 {
 .card-center {
   text-align: center;
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -678,7 +678,7 @@ h1, h2, h3 {
 
 /* Accessibility Focus */
 *:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -690,15 +690,15 @@ h1, h2, h3 {
 }
 
 .turn-indicator.my-turn {
-  color: var(--color-primary);
+  color: var(--primary);
   font-size: 1.4rem;
   font-weight: 800;
-  text-shadow: 0 2px 10px color-mix(in srgb, var(--color-primary) 40%, transparent);
+  text-shadow: 0 2px 10px color-mix(in srgb, var(--primary) 40%, transparent);
   animation: myTurnPulse 2s infinite;
 }
 
 .turn-indicator.others-turn {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 500;
 }
