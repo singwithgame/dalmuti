@@ -16,8 +16,8 @@ export default function TaxResult({ roomData, isHost, startGame, CARD_NAMES, nic
           <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>👑 왕 ({result.dalmutiName}) ↔ ⛏️ 대농노 ({result.peasantName})</h4>
           {isKingOrPeasant ? (
             <>
-              <p>왕이 하사한 카드: {result.dalmutiCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
-              <p>대농노가 바친 카드: {result.pBest.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+              <p>왕이 하사한 카드: {result.dalmutiCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
+              <p>대농노가 바친 카드: {result.pBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
             </>
           ) : (
             <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>은밀하게 2장의 카드가 교환되었습니다.</p>
@@ -29,8 +29,8 @@ export default function TaxResult({ roomData, isHost, startGame, CARD_NAMES, nic
             <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>💎 귀족 ({result.nobleName}) ↔ 🌾 소농노 ({result.lesserPeasantName})</h4>
             {isNobleOrLesser ? (
               <>
-                <p>귀족이 하사한 카드: {result.nobleCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
-                <p>소농노가 바친 카드: {result.lpBest.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+                <p>귀족이 하사한 카드: {result.nobleCards.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
+                <p>소농노가 바친 카드: {result.lpBest.map(c => `${CARD_NAMES[c].split(' ')[0]}(${c})`).join(', ')}</p>
               </>
             ) : (
               <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>은밀하게 1장의 카드가 교환되었습니다.</p>
