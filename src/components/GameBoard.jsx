@@ -91,9 +91,19 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
         lesserPeasantHand.sort((a,b) => a-b);
         
         update(ref(db, `rooms/${roomCode}`), {
-          status: 'playing',
+          status: 'tax_result',
           currentTurn: ranks[0],
-          taxState: null,
+          'taxState/completed': true,
+          'taxState/result': {
+            dalmutiCards: taxState.dalmutiCards,
+            nobleCards: taxState.nobleCards,
+            pBest: pBest,
+            lpBest: lpBest,
+            dalmutiName: dalmutiName,
+            nobleName: nobleName,
+            peasantName: peasantName,
+            lesserPeasantName: lesserPeasantName
+          },
           'currentRoundLog/taxes/dalmutiCards': taxState.dalmutiCards,
           'currentRoundLog/taxes/nobleCards': taxState.nobleCards,
           [`players/${dalmutiName}/hand`]: dalmutiHand,
@@ -109,9 +119,12 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   const me = players[nickname];
   const myHand = me?.hand || [];
   const centerCards = roomData?.centerCards;
+  const finishedPlayers = roomData?.finishedPlayers || [];
+  const isNewTrick = !centerCards || roomData?.lastPlayedBy === nickname || finishedPlayers.includes(roomData?.lastPlayedBy);
+  const effectiveCenterCards = isNewTrick ? null : centerCards;
 
   const selectedValuesForValidation = useMemo(() => selectedCards.map(idx => myHand[idx]), [selectedCards, myHand]);
-  const currentValidation = useMemo(() => validatePlay(selectedValuesForValidation, centerCards), [selectedValuesForValidation, centerCards]);
+  const currentValidation = useMemo(() => validatePlay(selectedValuesForValidation, effectiveCenterCards), [selectedValuesForValidation, centerCards]);
   
   const unselectedIndices = useMemo(() => myHand.map((_, i) => i).filter(i => !selectedCards.includes(i)), [myHand, selectedCards]);
   const groupedUnselected = useMemo(() => {
@@ -131,6 +144,22 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   if (!roomData) return <div className="lobby-container">Loading...</div>;
 
   const isHost = me?.isHost;
+  const [autoPassTrick, setAutoPassTrick] = useState(false);
+  const currentTurnPlayer = roomData?.currentTurn;
+  
+  // Auto pass trick effect
+  useEffect(() => {
+    if (isNewTrick) {
+      setAutoPassTrick(false);
+    }
+  }, [isNewTrick]);
+  
+  useEffect(() => {
+    if (isMyTurn && autoPassTrick && !finishedPlayers.includes(nickname)) {
+      passTurn(true);
+    }
+  }, [isMyTurn, autoPassTrick, finishedPlayers, nickname]);
+
   
   const handleLeaveRoom = async () => {
     if (window.confirm("정말 방을 나가시겠습니까? 게임 진행 중일 경우 다른 플레이어들에게 방해가 될 수 있습니다.")) {
@@ -194,9 +223,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   const allReady = Object.values(players).every(p => p.isReady);
 
-  const currentTurnPlayer = roomData.currentTurn;
-  const isMyTurn = currentTurnPlayer === nickname;
-  const finishedPlayers = roomData.finishedPlayers || [];
   const isFinished = finishedPlayers.includes(nickname);
 
   const hasRevolution = myHand.filter(c => c === 13).length >= 2;
@@ -234,15 +260,20 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     }
   };
 
+
   const playCards = () => {
     const selectedValues = selectedCards.map(idx => myHand[idx]);
-    const validation = validatePlay(selectedValues, centerCards);
+    const validation = validatePlay(selectedValues, effectiveCenterCards);
     if (!validation.valid) {
       alert(validation.reason);
       return;
     }
     
-    if (!window.confirm('정말 이 카드를 내시겠습니까?')) return;
+    // 최고의 패일 경우 묻지 않고 바로 패스 처리
+    const isUnbeatable = validation.rank === validation.count;
+    if (!isUnbeatable) {
+      if (!window.confirm('정말 이 카드를 내시겠습니까?')) return;
+    }
     
     const newHand = myHand.filter((_, idx) => !selectedCards.includes(idx));
     
@@ -271,7 +302,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       nextUpdates.status = 'round_over';
       nextUpdates.ranks = nextFinished;
       
-      // 히스토리 전역 노드에 푸시 (방장인 경우에만 1번 저장하도록 함, 단 playCards는 본인 턴일 때만 불림. 마지막 플레이어가 낼 때 방장 아닐 수 있으므로 방장 제한 없이 실행하되, Firebase push 특성상 마지막 카드 낸 사람이 기록함)
       if (roomData.currentRoundLog) {
          const historyRef = ref(db, 'history');
          const log = { 
@@ -282,15 +312,26 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
          push(historyRef, log);
       }
     } else {
-      nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
+      if (isUnbeatable) {
+        // 절대 깰 수 없는 패인 경우(ex: 1이 1장, 2가 2장 등) 다른 모든 플레이어를 패스 처리하고 즉시 턴을 돌려받음
+        nextUpdates.passedPlayers = activePlayers.filter(p => p !== nickname);
+        // 다음 턴은 바로 자신(새로운 트릭) - 만약 자신이 이 카드로 끝났다면 다음 사람
+        let nextLead = nickname;
+        if (nextFinished.includes(nickname)) {
+           nextLead = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
+        }
+        nextUpdates.currentTurn = nextLead;
+      } else {
+        nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, [], nextFinished);
+      }
     }
     
     update(ref(db, `rooms/${roomCode}`), nextUpdates);
     setSelectedCards([]);
   };
 
-  const passTurn = () => {
-    if (!window.confirm('정말 패스하시겠습니까?')) return;
+  const passTurn = (isAuto = false) => {
+    if (!isAuto && !window.confirm('정말 패스하시겠습니까?')) return;
     
     const orderedPlayers = roomData.ranks || Object.keys(players);
     const passed = roomData.passedPlayers || [];
@@ -307,10 +348,9 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       if (finishedPlayers.includes(lastPlayer)) {
          nextLead = getNextPlayer(lastPlayer, orderedPlayers, [], finishedPlayers);
       }
-      nextUpdates.centerCards = null;
       nextUpdates.passedPlayers = [];
       nextUpdates.currentTurn = nextLead;
-      nextUpdates.lastPlayedBy = null;
+      // centerCards와 lastPlayedBy를 유지하여 화면에 남도록 함
     } else {
       nextUpdates.currentTurn = getNextPlayer(nickname, orderedPlayers, newPassed, finishedPlayers);
     }
@@ -318,6 +358,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     update(ref(db, `rooms/${roomCode}`), nextUpdates);
     setSelectedCards([]);
   };
+
 
   const passRevolution = () => {
     const currentPassed = roomData.taxState?.revolutionPassedBy || [];
@@ -378,9 +419,9 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       return true;
     }
 
-    if (!centerCards) return false;
+    if (!effectiveCenterCards) return false;
     if (num === 13) return false; // 조커는 어두워지지 않음
-    return num >= centerCards.rank; // 낼 수 없는 숫자(계급)면 딤(Dim) 처리
+    return num >= effectiveCenterCards.rank; // 낼 수 없는 숫자(계급)면 딤(Dim) 처리
   };
 
   const isCardJesterGlow = (num) => {
@@ -598,6 +639,36 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {roomData.status === 'tax_result' && roomData.taxState?.result && (
+        <div className="waiting-room text-center">
+          <h2 style={{ marginBottom: '2rem', color: 'var(--primary)' }}>세금 교환 결과</h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--border)', width: '100%', maxWidth: '400px' }}>
+              <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>👑 왕 ({roomData.taxState.result.dalmutiName}) ↔ ⛏️ 대농노 ({roomData.taxState.result.peasantName})</h4>
+              <p>왕이 준 카드: {roomData.taxState.result.dalmutiCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+              <p>대농노가 바친 카드: {roomData.taxState.result.pBest.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+            </div>
+            
+            {roomData.taxState.result.nobleCards && roomData.taxState.result.nobleCards.length > 0 && (
+              <div style={{ background: 'var(--card)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--border)', width: '100%', maxWidth: '400px' }}>
+                <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>💎 귀족 ({roomData.taxState.result.nobleName}) ↔ 🌾 소농노 ({roomData.taxState.result.lesserPeasantName})</h4>
+                <p>귀족이 준 카드: {roomData.taxState.result.nobleCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+                <p>소농노가 바친 카드: {roomData.taxState.result.lpBest.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}</p>
+              </div>
+            )}
+          </div>
+          
+          {isHost ? (
+            <button className="btn" onClick={() => update(ref(db, `rooms/${roomCode}`), { status: 'playing', taxState: null })}>
+              게임 시작하기
+            </button>
+          ) : (
+            <p style={{ color: 'var(--text-secondary)' }}>방장이 게임을 시작할 때까지 대기해주세요...</p>
           )}
         </div>
       )}

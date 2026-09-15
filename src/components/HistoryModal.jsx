@@ -8,6 +8,35 @@ export default function HistoryModal({ onClose, password, setPassword }) {
   const [error, setError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  const handleCopyText = (record) => {
+    let text = `[방 코드: ${record.roomCode}] ${new Date(record.timestamp).toLocaleString()}\n`;
+    text += `시작 계급: ${record.initialRanks.map((name, idx) => `${getRankName(idx, record.initialRanks.length)} ${name}`).join(', ')}\n`;
+    
+    if (record.revolution) {
+      text += `🔥 ${record.revolutionBy}님이 조커 2장으로 ${record.revolution === 'greater' ? '대혁명' : '혁명'} 발동!\n`;
+    } else if (record.taxes) {
+      if (record.taxes.dalmutiCards) {
+        text += `👑 왕이 준 카드: ${record.taxes.dalmutiCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}\n`;
+      }
+      if (record.taxes.nobleCards) {
+        text += `💎 귀족이 준 카드: ${record.taxes.nobleCards.map(c => CARD_NAMES[c].split(' ')[0]).join(', ')}\n`;
+      }
+    }
+    
+    text += `최종 결과:\n`;
+    record.finalRanks.forEach((name, idx) => {
+      text += `${idx + 1}등: ${name} (${getRankName(idx, record.finalRanks.length)})\n`;
+    });
+    
+    navigator.clipboard.writeText(text).then(() => {
+      alert('기록이 복사되었습니다.');
+    }).catch(() => {
+      alert('복사에 실패했습니다.');
+    });
+  };
+
   const fetchHistory = async () => {
     const requiredPassword = import.meta.env.VITE_ROOM_PASSWORD || 'dalmuti';
     if (password !== requiredPassword) {
@@ -70,12 +99,18 @@ export default function HistoryModal({ onClose, password, setPassword }) {
               <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>아직 저장된 게임 기록이 없습니다.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {history.map((record, i) => (
+                
+                {history.slice(0, visibleCount).map((record, i) => (
                   <div key={i} style={{ background: 'var(--card)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 'bold' }}>방 코드: {record.roomCode}</span>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{new Date(record.timestamp).toLocaleString()}</span>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{new Date(record.timestamp).toLocaleString()}</span>
+                        <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.75rem', opacity: 0.8 }} onClick={() => handleCopyText(record)}>복사</button>
+                      </div>
                     </div>
+
 
                     <div style={{ marginBottom: '1rem' }}>
                       <h4 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>시작 계급</h4>
@@ -120,6 +155,12 @@ export default function HistoryModal({ onClose, password, setPassword }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+            
+            {visibleCount < history.length && (
+              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                <button className="btn btn-secondary" onClick={() => setVisibleCount(prev => prev + 5)}>5개 더보기</button>
               </div>
             )}
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
