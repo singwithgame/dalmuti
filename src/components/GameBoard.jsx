@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Card from './Card';
 import { db } from '../firebase';
 import { ref, onValue, update, push } from 'firebase/database';
@@ -7,20 +7,8 @@ import { generateDeck, shuffleDeck, distributeCards, validatePlay, getNextPlayer
 export default function GameBoard({ roomCode, nickname, onLeave }) {
   const [roomData, setRoomData] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
-  const [taxCountdown, setTaxCountdown] = useState(null);
-
-  useEffect(() => {
-    if (roomData?.taxState?.processedTax && !roomData?.taxState?.taxComplete && !roomData?.taxState?.revolution) {
-      setTaxCountdown(3);
-      const interval = setInterval(() => {
-        setTaxCountdown(prev => prev > 1 ? prev - 1 : 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    } else {
-      setTaxCountdown(null);
-    }
-  }, [roomData?.taxState?.processedTax, roomData?.taxState?.taxComplete, roomData?.taxState?.revolution]);
-
+  
+  
   useEffect(() => {
     const roomRef = ref(db, `rooms/${roomCode}`);
     const unsubscribe = onValue(roomRef, (snapshot) => {
@@ -33,17 +21,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     return () => unsubscribe();
   }, [roomCode, onLeave]);
 
-  // 자동 턴 정리 (네트워크 지연 등으로 인해 내가 낸 카드가 한 바퀴 돌아 내 차례가 되었음에도 테이블이 안 치워진 경우)
-  useEffect(() => {
-    if (roomData?.status === 'playing' && roomData.currentTurn === nickname && roomData.lastPlayedBy === nickname && roomData.centerCards) {
-      update(ref(db, `rooms/${roomCode}`), {
-        centerCards: null,
-        passedPlayers: [],
-        lastPlayedBy: null
-      });
-    }
-  }, [roomData?.status, roomData?.currentTurn, roomData?.lastPlayedBy, roomData?.centerCards, nickname, roomCode]);
-
+  
   // 세금 교환 및 혁명 처리 (방장만 계산하여 업데이트)
   useEffect(() => {
     if (roomData?.status === 'taxing' && roomData.players && roomData.players[nickname]?.isHost) {
@@ -69,17 +47,14 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       const nobleReady = taxState?.nobleCards !== undefined;
       
       if (dalmutiReady && nobleReady) {
-        if (!taxState.processedTax) {
-           update(ref(db, `rooms/${roomCode}`), { 'taxState/processedTax': true });
-           setTimeout(() => {
-              update(ref(db, `rooms/${roomCode}`), { 'taxState/taxComplete': true });
-           }, 3000);
-           return;
+        const playersWithJesters = Object.entries(roomData.players).filter(([name, p]) => p.hand && p.hand.filter(c => c === 13).length >= 2).map(([name]) => name);
+        const allRevolutionPassed = playersWithJesters.every(name => taxState.revolutionPassedBy?.includes(name));
+
+        if (!allRevolutionPassed) {
+           return; // 혁명 가능자가 아직 결정을 안 함
         }
         
-        if (!taxState.taxComplete) {
-           return;
-        }
+        
 
         const dalmutiName = ranks[0];
         const nobleName = ranks[1];
@@ -138,6 +113,14 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   const players = roomData.players || {};
   const me = players[nickname];
   const isHost = me?.isHost;
+  
+  const handleLeaveRoom = async () => {
+    if (window.confirm("정말 방을 나가시겠습니까? 게임 진행 중일 경우 다른 플레이어들에게 방해가 될 수 있습니다.")) {
+      const { ref, remove } = await import('firebase/database');
+      await remove(ref(db, `rooms/${roomCode}/players/${nickname}`));
+      onLeave();
+    }
+  };
   const playerCount = Object.keys(players).length;
 
   const toggleReady = () => {
@@ -321,6 +304,15 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     setSelectedCards([]);
   };
 
+  const passRevolution = () => {
+    const currentPassed = roomData.taxState?.revolutionPassedBy || [];
+    if (!currentPassed.includes(nickname)) {
+      update(ref(db, `rooms/${roomCode}`), {
+        'taxState/revolutionPassedBy': [...currentPassed, nickname]
+      });
+    }
+  };
+
   const declareRevolution = () => {
     if (!window.confirm('정말 조커 2장으로 혁명을 일으키시겠습니까? 세금 징수가 전면 무효화됩니다!')) return;
     
@@ -349,8 +341,8 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   };
 
   // UI 편의성 고도화 상태 및 파생 변수 계산
-  const selectedValuesForValidation = selectedCards.map(idx => myHand[idx]);
-  const currentValidation = validatePlay(selectedValuesForValidation, centerCards);
+  const selectedValuesForValidation = useMemo(() => selectedCards.map(idx => myHand[idx]), [selectedCards, myHand]);
+  const currentValidation = useMemo(() => validatePlay(selectedValuesForValidation, centerCards), [selectedValuesForValidation, centerCards]);
   const isSelectionValid = currentValidation.valid && selectedValuesForValidation.length > 0;
   const hasSelectedNormalCard = selectedValuesForValidation.some(num => num !== 13);
   
@@ -415,14 +407,19 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   const stagedIndices = selectedCards;
   const unselectedIndices = myHand.map((_, i) => i).filter(i => !selectedCards.includes(i));
   
-  const groupedUnselected = [];
-  unselectedIndices.forEach(idx => {
-    const num = myHand[idx];
-    const existing = groupedUnselected.find(g => g.num === num);
-    if (existing) {
-      existing.indices.push(idx);
-    } else {
-      groupedUnselected.push({ num, indices: [idx] });
+  const groupedUnselected = useMemo(() => {
+    const groups = [];
+    unselectedIndices.forEach((idx) => {
+      const num = myHand[idx];
+      const existing = groups.find(g => g.num === num);
+      if (existing) {
+        existing.indices.push(idx);
+      } else {
+        groups.push({ num, indices: [idx] });
+      }
+    });
+    return groups;
+  }, [unselectedIndices, myHand]);
     }
   });
 
@@ -430,7 +427,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     <div className="game-board">
       <div className="game-header">
         <h2 className="room-code-display">Room: {roomCode}</h2>
-        <button className="btn btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem' }} onClick={onLeave}>나가기</button>
+        <button className="btn btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem' }} onClick={handleLeaveRoom}>나가기</button>
       </div>
       
       {roomData.status === 'waiting' && (
@@ -511,70 +508,19 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
             <>
               <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)' }}>⚖️ 세금 징수 ⚖️</h2>
               
-              {hasRevolution && (
-                <button className="btn" style={{ backgroundColor: 'var(--color-destructive)', borderColor: 'var(--color-destructive)', marginBottom: '2rem' }} onClick={declareRevolution}>
-                  🔥 조커 2장으로 혁명 일으키기 🔥
-                </button>
-              )}
-
-              {taxCountdown !== null ? (
-                <div style={{ margin: '2rem 0', animation: 'fadeIn 0.3s ease' }}>
-                  <h1 style={{ fontSize: '4rem', color: 'var(--color-primary)' }}>{taxCountdown}</h1>
-                  <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)' }}>잠시 후 세금 교환과 함께 게임이 시작됩니다...</p>
-                </div>
-              ) : isDalmuti ? (
-                roomData.taxState?.dalmutiCards ? (
-                  <p>농노에게 하사할 카드를 전달했습니다. 다른 플레이어를 기다리는 중...</p>
-                ) : (
-                  <div>
-                    <p style={{ marginBottom: '1rem' }}>👑 대달무티이십니다. 농노에게 하사할 아무 카드나 2장 선택해주세요.</p>
-                    <button className="btn" disabled={selectedCards.length !== 2} onClick={giveTax}>하사하기</button>
-                  </div>
-                )
-              ) : isNoble ? (
-                roomData.taxState?.nobleCards ? (
-                  <p>소농노에게 하사할 카드를 전달했습니다. 다른 플레이어를 기다리는 중...</p>
-                ) : (
-                  <div>
-                    <p style={{ marginBottom: '1rem' }}>💎 소달무티이십니다. 소농노에게 하사할 아무 카드나 1장 선택해주세요.</p>
-                    <button className="btn" disabled={selectedCards.length !== 1} onClick={giveTax}>하사하기</button>
-                  </div>
-                )
-              ) : (
-                <div style={{ marginBottom: '2rem' }}>
-                  <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)' }}>👑 왕과 귀족이 노예에게 줄 카드를 고르고 있습니다...</p>
-                  {isPeasant && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 대농노입니다. 가장 좋은 카드 2장이 자동으로 왕에게 바쳐집니다.</p>}
-                  {myRankIndex === roomData.ranks?.length - 2 && <p style={{ marginTop: '1rem', color: 'var(--color-destructive)' }}>당신은 소농노입니다. 가장 좋은 카드 1장이 자동으로 귀족에게 바쳐집니다.</p>}
+              {hasRevolution && !roomData.taxState?.revolutionPassedBy?.includes(nickname) && (
+                <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                  <button className="btn" style={{ backgroundColor: 'var(--color-destructive)', borderColor: 'var(--color-destructive)' }} onClick={declareRevolution}>
+                    🔥 조커 2장으로 혁명 일으키기 🔥
+                  </button>
+                  <button className="btn btn-secondary" onClick={passRevolution}>
+                    혁명 포기 (Pass)
+                  </button>
                 </div>
               )}
-              
-              <div className="hand-cards-container">
-                <div className="hand-cards tax-hand-cards">
-                  {groupedUnselected.map((group) => {
-                    const { num, indices } = group;
-                    const idx = indices[0];
-                    const count = indices.length;
-                    const maxAllowed = isDalmuti ? 2 : (isNoble ? 1 : 0);
-                    const isDimmed = selectedCards.length >= maxAllowed;
-                    return (
-                      <div 
-                        key={`tax-hand-${num}`} 
-                        className={`hand-card-wrapper ${isDimmed ? 'dimmed' : ''}`}
-                      >
-                        <Card 
-                          number={num} 
-                          name={CARD_NAMES[num]} 
-                          isSelected={false}
-                          onClick={() => {
-                            if (isDimmed) return;
-                            handleCardClick(idx);
-                          }}
-                          isPlayable={(!roomData.taxState?.dalmutiCards && isDalmuti) || (!roomData.taxState?.nobleCards && isNoble)}
-                          count={count}
-                        />
-                      </div>
-                    );
-                  })}
+              {hasRevolution && roomData.taxState?.revolutionPassedBy?.includes(nickname) && (
+                <p style={{ marginBottom: '2rem', color: 'var(--color-text-secondary)' }}>혁명을 포기했습니다. 게임 시작을 대기 중입니다...</p>
+              )}}
                 </div>
               </div>
 
