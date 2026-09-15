@@ -181,11 +181,19 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   const startGame = () => {
     const deck = shuffleDeck(generateDeck());
-    const playerNames = Object.keys(players);
-    const hands = distributeCards(deck, playerNames);
+    let playerNames = Object.keys(players);
     
     const isFirstGame = !roomData.ranks;
-    const startPlayer = isFirstGame ? playerNames[Math.floor(Math.random() * playerNames.length)] : null;
+    if (isFirstGame) {
+      // Shuffle player order for the first game (seating order)
+      for (let i = playerNames.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [playerNames[i], playerNames[j]] = [playerNames[j], playerNames[i]];
+      }
+    }
+    
+    const hands = distributeCards(deck, playerNames);
+    const startPlayer = isFirstGame ? playerNames[0] : null;
 
     const updates = {
       status: isFirstGame ? 'playing' : 'taxing',
@@ -197,6 +205,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     
     if (isFirstGame) {
       updates.currentTurn = startPlayer;
+      updates.initialOrder = playerNames;
       updates.round = 1;
       updates.currentRoundLog = {
         roomCode,
@@ -282,7 +291,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
       nextFinished.push(nickname);
     }
     
-    const orderedPlayers = roomData.ranks || Object.keys(players);
+    const orderedPlayers = roomData.ranks || roomData.initialOrder || Object.keys(players);
     const activePlayers = orderedPlayers.filter(p => !nextFinished.includes(p));
     
     let nextUpdates = {
@@ -323,7 +332,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     if (!centerCards) return; // 빈 테이블에서는 패스 불가
     if (!isAuto && !window.confirm('정말 패스하시겠습니까?')) return;
     
-    const orderedPlayers = roomData.ranks || Object.keys(players);
+    const orderedPlayers = roomData.ranks || roomData.initialOrder || Object.keys(players);
     const passed = roomData.passedPlayers || [];
     const activeCount = orderedPlayers.filter(p => !finishedPlayers.includes(p)).length;
     
@@ -421,7 +430,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   };
 
   // 상대방 플레이어 배치 계산 (계급 순 가로 배열)
-  const orderedPlayers = roomData.ranks || Object.keys(players);
+  const orderedPlayers = roomData.ranks || roomData.initialOrder || Object.keys(players);
 
   const getRankEmoji = (playerName) => {
     if (!roomData.ranks) return '-';
