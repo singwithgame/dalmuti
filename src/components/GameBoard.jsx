@@ -155,10 +155,11 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   }, [trickId]);
   
   useEffect(() => {
-    if (isMyTurn && autoPassTrick && !finishedPlayers.includes(nickname)) {
+    // Prevent auto-pass if table is empty (prevent race condition on new trick)
+    if (isMyTurn && autoPassTrick && centerCards && !finishedPlayers.includes(nickname)) {
       passTurn(true);
     }
-  }, [isMyTurn, autoPassTrick, finishedPlayers, nickname]);
+  }, [isMyTurn, autoPassTrick, centerCards, finishedPlayers, nickname]);
 
   if (!roomData) return <div className="lobby-container">Loading...</div>;
 
@@ -319,6 +320,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   };
 
   const passTurn = (isAuto = false) => {
+    if (!centerCards) return; // 빈 테이블에서는 패스 불가
     if (!isAuto && !window.confirm('정말 패스하시겠습니까?')) return;
     
     const orderedPlayers = roomData.ranks || Object.keys(players);
@@ -638,7 +640,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
           roomData={roomData} 
           isHost={isHost} 
           startGame={() => update(ref(db, `rooms/${roomCode}`), { status: 'playing', taxState: null })} 
-          CARD_NAMES={CARD_NAMES} 
+          CARD_NAMES={CARD_NAMES} nickname={nickname} 
         />
       )}
 
