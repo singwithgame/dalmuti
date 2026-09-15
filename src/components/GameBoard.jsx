@@ -105,10 +105,31 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
     }
   }, [roomData?.status, roomData?.taxState, roomData?.players, roomData?.ranks, nickname, roomCode]);
 
+  const players = roomData?.players || {};
+  const me = players[nickname];
+  const myHand = me?.hand || [];
+  const centerCards = roomData?.centerCards;
+
+  const selectedValuesForValidation = useMemo(() => selectedCards.map(idx => myHand[idx]), [selectedCards, myHand]);
+  const currentValidation = useMemo(() => validatePlay(selectedValuesForValidation, centerCards), [selectedValuesForValidation, centerCards]);
+  
+  const unselectedIndices = useMemo(() => myHand.map((_, i) => i).filter(i => !selectedCards.includes(i)), [myHand, selectedCards]);
+  const groupedUnselected = useMemo(() => {
+    const groups = [];
+    unselectedIndices.forEach(idx => {
+      const num = myHand[idx];
+      const existing = groups.find(g => g.num === num);
+      if (existing) {
+        existing.indices.push(idx);
+      } else {
+        groups.push({ num, indices: [idx] });
+      }
+    });
+    return groups;
+  }, [unselectedIndices, myHand]);
+
   if (!roomData) return <div className="lobby-container">Loading...</div>;
 
-  const players = roomData.players || {};
-  const me = players[nickname];
   const isHost = me?.isHost;
   
   const handleLeaveRoom = async () => {
@@ -173,10 +194,8 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   const allReady = Object.values(players).every(p => p.isReady);
 
-  const myHand = me?.hand || [];
   const currentTurnPlayer = roomData.currentTurn;
   const isMyTurn = currentTurnPlayer === nickname;
-  const centerCards = roomData.centerCards;
   const finishedPlayers = roomData.finishedPlayers || [];
   const isFinished = finishedPlayers.includes(nickname);
 
@@ -337,8 +356,6 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
   };
 
   // UI 편의성 고도화 상태 및 파생 변수 계산
-  const selectedValuesForValidation = useMemo(() => selectedCards.map(idx => myHand[idx]), [selectedCards, myHand]);
-  const currentValidation = useMemo(() => validatePlay(selectedValuesForValidation, centerCards), [selectedValuesForValidation, centerCards]);
   const isSelectionValid = currentValidation.valid && selectedValuesForValidation.length > 0;
   const hasSelectedNormalCard = selectedValuesForValidation.some(num => num !== 13);
   
@@ -401,21 +418,7 @@ export default function GameBoard({ roomCode, nickname, onLeave }) {
 
   // 카드 분리 렌더링을 위한 인덱스 계산
   const stagedIndices = selectedCards;
-  const unselectedIndices = useMemo(() => myHand.map((_, i) => i).filter(i => !selectedCards.includes(i)), [myHand, selectedCards]);
   
-  const groupedUnselected = useMemo(() => {
-    const groups = [];
-    unselectedIndices.forEach(idx => {
-      const num = myHand[idx];
-      const existing = groups.find(g => g.num === num);
-      if (existing) {
-        existing.indices.push(idx);
-      } else {
-        groups.push({ num, indices: [idx] });
-      }
-    });
-    return groups;
-  }, [unselectedIndices, myHand]);
 
   return (
     <div className="game-board">
