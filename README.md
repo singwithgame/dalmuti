@@ -4,13 +4,6 @@
 
 인기 보드게임 **'달무티(The Great Dalmuti)'**를 모바일과 PC 웹 브라우저 환경에서 쾌적하게 즐길 수 있도록 구현한 **팬 메이드(Fan-made)** 웹 애플리케이션입니다.
 
-## ⚠️ Disclaimer (저작권 안내)
-
-- 본 프로젝트는 보드게임 '달무티'의 룰과 콘셉트를 기반으로 제작된 **비상업적 목적의 순수 팬 메이드 게임**입니다.
-- 원작 게임의 모든 아이디어 및 세계관, 규칙 등에 대한 저작권은 **Richard Garfield** 및 원작 퍼블리셔(Amigo 등)에 있습니다.
-- 게임 내에 사용된 일러스트레이션 에셋은 AI를 통해 본 프로젝트만을 위해 새롭게 생성되었습니다.
-- 상업적 용도로의 사용을 금하며, 문제가 될 시 즉각 삭제 또는 비공개 처리될 수 있습니다.
-
 ## 🚀 개발 배경
 
 오프라인에서 왁자지껄하게 즐기던 달무티의 재미를, 친구들과 언제 어디서나 웹 브라우저를 통해 실시간으로 즐기기 위해 시작되었습니다.
@@ -44,17 +37,53 @@
 > 
 > 부디 대달무티의 영광이 당신과 함께하기를! 👑
 
-## 💻 로컬 실행 방법 (Local Development)
+---
 
+## 💻 나만의 서버 구축하기 (Self-Hosting Guide)
+
+이 프로젝트는 서버 구축이 매우 간단합니다. 누구나 코드를 클론(Clone) 또는 포크(Fork)하여 본인만의 파이어베이스(Firebase) 데이터베이스와 연동해 사설 달무티 방을 구축할 수 있습니다! 
+
+### 1단계: Firebase 프로젝트 설정
+1. [Firebase Console](https://console.firebase.google.com/)에 접속하여 새 프로젝트를 생성합니다.
+2. **Realtime Database**를 활성화하고, 적절한 서버 위치(예: `asia-northeast3`)를 선택합니다.
+3. 데이터베이스 **규칙(Rules)** 탭으로 이동하여, 이 저장소에 있는 `database.rules.json`의 내용을 그대로 복사하여 붙여넣고 게시(Publish)합니다.
+4. 프로젝트 개요에서 **웹 앱(`</>`)** 아이콘을 클릭해 앱을 추가하고, 발급받은 **Firebase 구성 객체(Config)**를 확인합니다.
+
+### 2단계: 코드 가져오기 및 환경 변수 설정
 ```bash
-# 1. 저장소 클론
+# 1. 저장소 클론 및 폴더 이동
 git clone https://github.com/singwithgame/dalmuti.git
 cd dalmuti
 
 # 2. 패키지 설치
 npm install
-
-# 3. 개발 서버 실행
-npm run dev
 ```
-*(단, 로컬에서 실행하기 위해서는 본인의 Firebase 환경 변수 세팅이 필요합니다.)*
+
+3. 프로젝트 최상단(루트)에 `.env` 파일을 생성하고 1단계에서 확인한 Firebase 설정값들을 아래 형식에 맞게 입력합니다:
+```env
+VITE_FIREBASE_API_KEY=당신의_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN=당신의_PROJECT_ID.firebaseapp.com
+VITE_FIREBASE_DATABASE_URL=https://당신의_DATABASE_NAME.firebaseio.com
+VITE_FIREBASE_PROJECT_ID=당신의_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET=당신의_PROJECT_ID.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=당신의_SENDER_ID
+VITE_FIREBASE_APP_ID=당신의_APP_ID
+```
+
+### 3단계: 로컬 테스트 및 웹 배포
+```bash
+# 개발 모드로 실행 (http://localhost:5173 에서 확인)
+npm run dev
+
+# 실제 배포용 파일 생성
+npm run build
+```
+빌드가 완료되면 생성된 `dist` 폴더를 GitHub Pages, Vercel, Netlify, 혹은 Firebase Hosting 등에 올려 전 세계 사람들과 즐기시면 됩니다!
+
+---
+
+## 📄 License & Disclaimer
+
+- **Source Code (오픈소스 라이선스)**: 본 프로젝트의 모든 **소스 코드**는 [MIT License](LICENSE) 하에 배포됩니다. 누구나 자유롭게 코드를 활용, 수정, 재배포, 포크(Fork)하여 사용할 수 있습니다.
+- **Game Concept (게임 규칙 및 상표)**: 이 프로젝트는 보드게임 '달무티(The Great Dalmuti)'의 규칙을 기반으로 만들어진 비상업적 팬 메이드(Fan-made) 작품입니다. 달무티의 원작 아이디어, 명칭, 규칙 등 고유한 게임 콘셉트에 대한 권리는 **Richard Garfield** 및 원작 퍼블리셔(Amigo 등)에게 있습니다. 이 코드를 기반으로 영리/상업적 서비스를 운영할 경우 원작자의 저작권을 침해할 소지가 있으니 유의하시기 바랍니다.
+- **Assets (아트 자원)**: 게임 내에 사용된 카드 일러스트레이션 등 그래픽 에셋은 AI를 통해 본 프로젝트만을 위해 새롭게 생성된 리소스입니다.
