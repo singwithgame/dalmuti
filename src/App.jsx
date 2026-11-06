@@ -22,11 +22,11 @@ function App() {
     // Cleanup old rooms (older than 7 days)
     const cleanupOldRooms = async () => {
       try {
+        const now = Date.now();
+        const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
         const snapshot = await get(query(ref(db, 'rooms'), orderByChild('createdAt'), endAt(now - ONE_WEEK)));
         if (snapshot.exists()) {
           const rooms = snapshot.val();
-          const now = Date.now();
-          const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
           
           Object.keys(rooms).forEach(roomId => {
             const room = rooms[roomId];

@@ -2,6 +2,11 @@
   "rules": {
     "rooms": {
       ".read": true,
+      ".write": true,
+      ".indexOn": ["createdAt"]
+    },
+    "history": {
+      ".read": true,
       ".write": true
     },
     ".read": false,

@@ -63,7 +63,8 @@ export default function HistoryModal({ onClose, password, setPassword }) {
       }
       setIsAuthenticated(true);
       setError('');
-    } catch {
+    } catch (err) {
+      console.error('Failed to fetch history', err);
       setError('기록을 불러오는데 실패했습니다.');
     }
   };
